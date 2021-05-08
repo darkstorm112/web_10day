@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模拟交通灯</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding:0;
+      margin:0;
+      overflow: hidden;
+
+      /* 设置html和body为贪心布局 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    header {
+      line-height: 2rem;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .traffic {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .traffic .light{
+      width: 100px;
+      height: 100px;
+      background-color: #999;
+      border-radius: 50%;
+    }
+    /* 将class=traffic & class=pass 元素下的第一个 class=light 的元素的背景色设置为绿色 */
+    .traffic.pass .light:nth-child(1) {
+      background-color: #0a6; /* 绿灯 */
+    }
+    .traffic.wait .light:nth-child(2) {
+      background-color: #cc0;/* 黄灯 */
+    }
+    .traffic.stop .light:nth-child(3) {
+      background-color: #c00;/* 红灯 */
+    }
+  </style>
+</head>
+<body>
+  <head>模拟交通灯</head>
+  <main>
+    <div class="traffic pass">
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+    </div>      
+  </main>
+  <script>
+    //   这个例子的具体需求是，
+    //   模拟交通灯信号，分别以5秒、1.5秒、3.5秒
+    //   来循环切换绿灯（pass状态）、黄灯（wait状态）和红灯（stop状态）。
+    //   也就是，默认是绿灯，过5秒后显示黄灯，过1.5秒后显示红灯，再过3.5秒后又回到绿灯，
+    //   然后以这样的方式继续循环下去。
+
+    const traffic = document.querySelector('.traffic')
+    
+    // 为了提高异步状态切换代码的可读性，我们可以采用ES6异步规范——Promise,重构我们的代码
+    function wait (ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      })
+    }
+
+    //  1.0
+    // (
+    //   async function () {
+    //     while ( 1 ) {
+    //       traffic.className = 'traffic pass'
+    //       await wait(5000)
+    //       traffic.className = 'traffic wait'
+    //       await wait(1500)
+    //       traffic.className = 'traffic stop'
+    //       await wait(3500)
+    //     }
+    //   }
+    // )()
+
+    // 2.0
+    async function signalLoop (subject, signals = [], onSignal) {
+      const signalCount = signals.length
+
+      for (let i = 0; ;i++) {
+        const { signal, duration } = signals[i%signalCount]
+        await onSignal(subject, signal)
+        await wait(duration)
+      }
+    }
+
+    const signals = [
+      {signal:'pass', duration:5000},
+      {signal:'wait', duration:1500},
+      {signal:'stop', duration:3500}
+    ]
+
+    signalLoop(traffic, signals, (subject, signal)  => {
+      subject.className = `traffic ${signal}`
+    })
+
+    // 代码是人阅读的，只是偶尔让计算机执行一下。
+  </script>
+</body>
+</html>

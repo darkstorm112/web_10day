@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模拟交通灯</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding:0;
+      margin:0;
+      overflow: hidden;
+
+      /* 设置html和body为贪心布局 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    header {
+      line-height: 2rem;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .traffic {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .traffic .light{
+      width: 100px;
+      height: 100px;
+      background-color: #999;
+      border-radius: 50%;
+    }
+    /* 将class=traffic & class=pass 元素下的第一个 class=light 的元素的背景色设置为绿色 */
+    .traffic.pass .light:nth-child(1) {
+      background-color: #0a6; /* 绿灯 */
+    }
+    .traffic.wait .light:nth-child(2) {
+      background-color: #cc0;/* 黄灯 */
+    }
+    .traffic.stop .light:nth-child(3) {
+      background-color: #c00;/* 红灯 */
+    }
+  </style>
+</head>
+<body>
+  <head>模拟交通灯</head>
+  <main>
+    <div class="traffic pass">
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+    </div>      
+  </main>
+  <script>
+    //   这个例子的具体需求是，
+    //   模拟交通灯信号，分别以5秒、1.5秒、3.5秒
+    //   来循环切换绿灯（pass状态）、黄灯（wait状态）和红灯（stop状态）。
+    //   也就是，默认是绿灯，过5秒后显示黄灯，过1.5秒后显示红灯，再过3.5秒后又回到绿灯，
+    //   然后以这样的方式继续循环下去。
+
+    const traffic = document.querySelector('.traffic')
+    
+    // 1.0 数据抽象
+    // 数据抽象就是把数据定义并聚合成能被过程处理的对象，交由特定的过程处理。
+    // 简单来说就是数据的结构化。
+    // 这个函数真是漂亮 妙！！
+    // function signalLoop (subject, signals = []) {
+    //   const signalCount = signals.length
+
+    //   function updateState (i) {
+    //     const { signal, duration } = signals[i%signalCount]
+
+    //     subject.className = signal
+
+    //     setTimeout(updateState.bind(null, i+1), duration);
+    //   }
+    //   updateState(0)
+    // }
+    // const signals = [
+    //   {signal:'traffic pass', duration:5000},
+    //   {signal:'traffic wait', duration:1500},
+    //   {signal:'traffic stop', duration:3500},
+    // ]
+
+    // signalLoop(traffic,signals)
+
+    // 2.0 去副作用化
+    // 但是，采用数据抽象重构后，我们的signalLoop方法还未达到完全封装。
+    // 因为signalLoop函数中存在一部分改变外部状态的代码。
+    // 我们把改变外部状态的部分叫做代码的副作用(side-effect)。
+    // 通常情况下，我们可以考虑把函数体内部有副作用的代码剥离出来，
+    // 这往往能提升函数的通用性、稳定性和可测试性。
+    function signalLoop (subject, signals = [], onSignal) {
+      const signalCount = signals.length
+
+      function updateState (i) {
+        const { signal, duration } = signals[i%signalCount]
+
+        onSignal(subject, signal)
+
+        setTimeout(updateState.bind(null, i+1), duration);
+      }
+      updateState(0)
+    }
+    const signals = [
+      {signal:'pass', duration:5000},
+      {signal:'wait', duration:1500},
+      {signal:'stop', duration:3500},
+    ]
+
+    signalLoop(traffic, signals, (subject, signal)  => {
+      subject.className = `traffic ${signal}`
+    })
+  </script>
+</body>
+</html>

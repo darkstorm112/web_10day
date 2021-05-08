@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模拟交通灯</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding:0;
+      margin:0;
+      overflow: hidden;
+
+      /* 设置html和body为贪心布局 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    header {
+      line-height: 2rem;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .traffic {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .traffic .light{
+      width: 100px;
+      height: 100px;
+      background-color: #999;
+      border-radius: 50%;
+    }
+    /* 将class=traffic & class=pass 元素下的第一个 class=light 的元素的背景色设置为绿色 */
+    .traffic.pass .light:nth-child(1) {
+      background-color: #0a6; /* 绿灯 */
+    }
+    .traffic.wait .light:nth-child(2) {
+      background-color: #cc0;/* 黄灯 */
+    }
+    .traffic.stop .light:nth-child(3) {
+      background-color: #c00;/* 红灯 */
+    }
+  </style>
+</head>
+<body>
+  <head>模拟交通灯</head>
+  <main>
+    <div class="traffic pass">
+      <div class="light"></div>
+      <div class="light"></div>
+      <div class="light"></div>
+    </div>      
+  </main>
+  <script>
+    //   这个例子的具体需求是，
+    //   模拟交通灯信号，分别以5秒、1.5秒、3.5秒
+    //   来循环切换绿灯（pass状态）、黄灯（wait状态）和红灯（stop状态）。
+    //   也就是，默认是绿灯，过5秒后显示黄灯，过1.5秒后显示红灯，再过3.5秒后又回到绿灯，
+    //   然后以这样的方式继续循环下去。
+
+    const traffic = document.querySelector('.traffic')
+
+    // 函数1.0
+    // loop函数访问了外部环境traffic。这么做有两个问题：
+    // 1、如果我们修改了HTML代码，元素不叫做traffic了，这个函数就不work了。
+    // 2、如果我们想把这个函数复用到其他地方，我们还得在那个地方重建这个traffic对象。
+    // 在函数中有一个不明来源的变量
+    // 他在函数内部不具有意义
+    // 这是初学者常犯的错
+    // function loop () {
+    //   traffic.className = 'traffic pass'
+    //   setTimeout(() => {
+    //     traffic.className = 'traffic wait'
+    //     setTimeout(() => {
+    //       traffic.className = 'traffic stop'
+    //       setTimeout(() => {
+    //         loop()  
+    //       }, 3500);
+
+    //     },1500)
+
+    //   },5000)
+    // }
+
+    // 函数2.0
+    // 让traffic对象作为参数传入loop函数
+    function loop (subjject) {
+      subjject.className = 'traffic pass'
+      setTimeout(() => {
+        subjject.className = 'traffic wait'
+        setTimeout(() => {
+          subjject.className = 'traffic stop'
+          setTimeout(() => {
+            loop(subjject)  
+          }, 3500);
+          
+        },1500)
+
+      },5000)
+    }
+
+    // 1.0调用
+    // loop()
+
+    // 2.0调用
+    loop(traffic)
+  </script>
+</body>
+</html>
