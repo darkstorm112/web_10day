@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数拦截器</title>
+</head>
+<body>
+
+<script>
+// 这个故事，我们将带你了解高阶函数的另外一个应用 —— 函数拦截器。
+// 最近我们遇到一个头疼的问题，我们维护的一个工具库面临一次大的升级。
+// 这次版本升级中，一部分API将发生变化，旧的用法会被新的用法所取代。
+// 但是，由于很多业务中使用了老版本的工具库，不可能一次升级完，
+// 因此我们需要做一个平缓过渡：在当前这个版本中，先不取消这些旧的API，
+// 而是给它们增加一个提示信息，告诉调用它们的用户，这些API将会在下一次升级中被废弃。
+
+// 要输出提示信息，可以使用console.warn。
+
+// 1.0原始的
+function deprecate (oldApi, newApi) {
+  const message = `The ${oldApi} is deprecated. Please use the ${newApi} instead.`;
+
+  console.warn(message)
+}
+
+export function foo () {
+  deprecate('foo', 'bar')
+
+  // do sth
+}
+
+// 2.0
+function deprecate(fn, oldApi, newApi) {
+  const message = `The ${oldApi} is deprecated. Please use the ${newApi} instead.`;
+  const notice = once(console.warn)
+  return function (...args) {
+    notice(message)
+    return fn.apply(this, args)
+  }
+}
+
+ 
+// once函数
+function once (fn) {
+  return function (...args) {
+    if(fn){
+      const ret = fn.apply(this, args)
+      fn = null
+      return ret
+    }
+  }
+}
+// 这里我们还添加了一个小细节，定义notice = once(console.warn)，
+// 用notice输出，这样的话，调用相同的函数只会在控制台显示一遍警告，就避免了输出太多重复的信息。
+// 从这个例子，我们可以看到高阶函数另一个经典的使用场景，那就是，当我们想要修改函数库中的某个API，
+// 我们可以选择不修改代码本身，而是对这个API进行修饰，修饰的过程可以抽象为拦截它的输入或输出。
+
+// 这和web开发中的拦截器的思路不谋而合。
+// 基于这个思路，我们也可以设计一个简单的通用函数拦截器：
+// function intercept (fn, {beforeCall = null, afterCall = null}) {
+//   return function (...args) {
+//     beforeCall&&beforeCall()
+//     const ret = fn.apply(this, ...args)
+//     afterCall&&afterCall()
+//     return ret
+//   }
+// }
+
+function intercept(fn, {beforeCall = null, afterCall = null}) {
+  return function (...args) {
+    if(!beforeCall || beforeCall.call(this, args) !== false) {
+      // 如果beforeCall返回false，不执行后续函数
+      const ret = fn.apply(this, args);
+      if(afterCall) return afterCall.call(this, ret);
+      return ret;
+    }
+  };
+}
+
+
+
+
+
+
+
+
+</script>
+  
+</body>
+</html>
