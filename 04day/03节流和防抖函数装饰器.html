@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>节流和防抖函数装饰器</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+    #panel {
+      display: inline-block;
+      width: 360px;
+      height: 360px;
+      background: hsl(0, 50%, 50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+
+  <script>
+    const panel = document.getElementById('panel');
+    // panel.addEventListener('mousemove', (e) => {
+    //   const {x, y} = e;
+    //   e.target.style.background = `linear-gradient(${y}deg, 
+    //     hsl(0, 50%, 50%),
+    //     hsl(${0.5 * x}, 50%, 50%))`;
+    // });
+
+    // 解决业务
+    // let throttleTimer = null;
+    // panel.addEventListener('mousemove', (e) => {
+    //   const {x, y} = e;
+    //   if(throttleTimer)return
+
+     
+    //   e.target.style.background = `linear-gradient(${y}deg, 
+    //     hsl(0, 50%, 50%),
+    //     hsl(${0.5 * x}, 50%, 50%))`;
+      
+    //   throttleTimer = setTimeout( () => {
+    //     throttleTimer = null
+    //   }, 200)
+    // });
+
+    // 节流通用函数1.0
+    function throttle (fn, ms=100) {
+      let timer = null
+      return function (...args) {
+        if(timer)return
+        let ret = fn.apply(this, args)
+        timer = setTimeout(() => {
+          timer = null
+        },ms)
+        return ret
+      }
+    }
+
+    panel.addEventListener('mousemove', throttle((e) => {
+      const {x, y} = e;
+      e.target.style.background = `linear-gradient(${y}deg, 
+        hsl(0, 50%, 50%),
+        hsl(${0.5 * x}, 50%, 50%))`;
+    }));
+
+    // 抽象once
+    function once (fn) {
+      return throttle(fn, Infinity)
+    }
+
+    // 防抖
+    function debounce (fn, ms=100) {
+      let timer = null
+      return function (...args) {
+        if(timer){
+          clearTimeout(timer)
+        }
+        timer = setTimeout(() => {
+          fn.apply(this, args)
+        }, ms)
+      }
+    }
+  </script>
+</body>
+</html>
