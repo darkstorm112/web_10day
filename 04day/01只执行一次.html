@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>只执行一次</title>
+  <style>
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    li button {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      outline: 0 none;
+    }
+    li.completed {
+      transition: opacity 2s;
+      opacity: 0;
+    }
+    li button:before {
+      content: '☑️';
+    }
+    li.completed button:before {
+      content: '✅';
+    }
+  </style>
+</head>
+<body>
+  <ul>
+    <li><button></button><span>任务一：学习HTML</span></li>
+    <li><button></button><span>任务二：学习CSS</span></li>
+    <li><button></button><span>任务三：学习JavaScript</span></li>
+  </ul>
+  
+  <script>
+    const list = document.querySelector('ul')
+    const buttons = list.querySelectorAll('button')
+
+    // 1.0
+    // buttons.forEach( button => {
+    //   button.addEventListener('click', (evt) => {
+    //     const target = evt.target
+    //     console.dir(target)
+    //     target.parentNode.className = 'completed'
+    //     setTimeout(() => {
+    //       list.removeChild(target.parentNode)
+    //     }, 2000)
+    //   },)
+    // })
+
+    // 2.0  ==  once参数
+    // 测试工程师却发现了一个问题 —— 在列表项消失前，如果快速地点击多次列表元素，
+    // 在控制台上会出现异常信息：
+    // buttons.forEach( button => {
+    //   button.addEventListener('click', (evt) => {
+    //     const target = evt.target
+    //     console.dir(target)
+    //     target.parentNode.className = 'completed'
+    //     setTimeout(() => {
+    //       list.removeChild(target.parentNode)
+    //     }, 2000)
+    //   }, {once: true})
+    // })
+
+    // 2.1  ==  removeEventListener
+    // buttons.forEach( button => {
+    //   button.addEventListener('click', function f(evt) {
+    //     const target = evt.target
+    //     console.dir(target)
+    //     target.parentNode.className = 'completed'
+    //     setTimeout(() => {
+    //       list.removeChild(target.parentNode)
+    //     }, 2000)
+    //     target.removeEventListener('click', f)
+    //   })
+    // })
+
+    // 2.2  ==  disabled
+    buttons.forEach( button => {
+      button.addEventListener('click', (evt) => {
+        const target = evt.target
+        target.parentNode.className = 'completed'
+        setTimeout(() => {
+          list.removeChild(target.parentNode)
+        }, 2000)
+        target.disabled = true
+      })
+    })
+
+  </script>
+</body>
+</html>

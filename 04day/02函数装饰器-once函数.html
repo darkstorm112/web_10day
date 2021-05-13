@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>只执行一次</title>
+  <style>
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    li button {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      outline: 0 none;
+    }
+    li.completed {
+      transition: opacity 2s;
+      opacity: 0;
+    }
+    li button:before {
+      content: '☑️';
+    }
+    li.completed button:before {
+      content: '✅';
+    }
+  </style>
+</head>
+<body>
+  <ul>
+    <li><button></button><span>任务一：学习HTML</span></li>
+    <li><button></button><span>任务二：学习CSS</span></li>
+    <li><button></button><span>任务三：学习JavaScript</span></li>
+  </ul>
+  
+<script>
+  
+  // once函数
+  function once (fn) {
+    return function (...args) {
+      if(fn){
+        const ret = fn.apply(this, args)
+        fn = null
+        return ret
+      }
+    }
+  }
+
+  
+
+  const list = document.querySelector('ul')
+  const buttons = list.querySelectorAll('button')
+
+  buttons.forEach( button => {
+    button.addEventListener('click', once((evt) => {
+      const target = evt.target
+      console.dir(target)
+      target.parentNode.className = 'completed'
+      setTimeout(() => {
+        list.removeChild(target.parentNode)
+      }, 2000)
+    }))
+  })
+
+
+  // once函数升级
+  function once (fn, replacer=null){
+    return function (...args) {
+      if(fn){
+        const ret = fn.apply(this, args)
+        fn = null
+        return ret
+      }
+
+      if(replacer){
+        return replacer.apply(this,args)
+      }
+    }
+  }
+
+  // 用法升级
+  const obj = {
+    init: once( () => {
+      console.log('Initializer has been called.')
+    }, () => {
+      throw new Error('This method should be called only once.')
+    })
+  }
+
+  console.log(obj.init)
+  obj.init()
+  obj.init()
+</script>
+</body>
+</html>
